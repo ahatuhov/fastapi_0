@@ -1,6 +1,7 @@
-from fastapi import FastAPI, Body
+from fastapi import FastAPI, Body, Path
 import uvicorn
 from pydantic import BaseModel, EmailStr
+from typing import Annotated
 
 app = FastAPI()
 
@@ -72,7 +73,7 @@ def get_item_latest():  # <--- должен быть написан раньше
 
 # Более общий запрос
 @app.get("/items/{item_id}/")
-def get_item_by_id(item_id: int):  # указываем строго тип для item_id
+def get_item_by_id(item_id: Annotated[int, Path(ge=1, lt=1_000_000)]):  # указываем строго тип (int) для item_id
     return {
         "item": {
             "id": item_id
