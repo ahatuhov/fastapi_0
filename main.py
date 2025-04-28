@@ -2,8 +2,23 @@ from fastapi import FastAPI
 import uvicorn
 from items_views import router as items_router
 from users.views import router as user_router
+from contextlib import asynccontextmanager
+from core.models import Base, db_helper
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # сделать что-то
+    # будем создавать БД
+    async with db_helper.engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)  # create_all без скобок
+
+    yield
+    # очистить/завершить что-то после работы приложения
+    # например завершить соединение с БД
+
+
+app = FastAPI(lifespan=lifespan)
 app.include_router(
     items_router
 )  # регистрируем в (app) пространство имен в виде нового роутера
